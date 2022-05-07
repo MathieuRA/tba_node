@@ -1,5 +1,7 @@
-import { Room } from '@prisma/client'
-import { prisma } from '../../app'
+import Direction from '../../entity/Direction'
+import Room from '../../entity/Room'
+
+export const INIT_ROOM_NAME = 'bedroom'
 
 class Game {
   #currentRoom: Room | null
@@ -10,8 +12,16 @@ class Game {
     this.#currentRoom = null
   }
 
+  // PRIVATES
+  #setCurrentRoom(room: Room) {
+    this.#currentRoom = room
+  }
+
   // GETTERS
   getCurrentRoom() {
+    if (this.#currentRoom === null) {
+      throw new Error('The game have to be initilized first.')
+    }
     return this.#currentRoom
   }
 
@@ -20,23 +30,46 @@ class Game {
   }
 
   // SETTERS
+  async changeCurrentRoom(direction: Direction) {
+    const nextRoom = (await Room.findAll()).find(
+      (room) =>
+        room.getId() === this.getCurrentRoom().getRoomIdInDirection(direction)
+    )
+    if (nextRoom === undefined) {
+      console.log('There is not room in this direction')
+      return
+    }
+    this.#setCurrentRoom(nextRoom)
+  }
+
   async init() {
-    const initRoom = await prisma.room.findUnique({
-      where: {
-        name: 'bedroom',
-      },
-      rejectOnNotFound: true,
-    })
+    const initRoom = (await Room.findAll()).find(
+      (room) => room.getName() === INIT_ROOM_NAME
+    )
+    if (initRoom === undefined) {
+      throw new Error(`Invalid room: ${INIT_ROOM_NAME}`)
+    }
+
     this.#currentRoom = initRoom
     this.#isRunning = true
   }
 
-  setCurrentRoom(room: Room) {
-    this.#currentRoom = room
-  }
-
   stop() {
     this.#isRunning = false
+  }
+
+  // PRINTERS
+  async printAvailableRooms() {
+    const roomsByDirection =
+      await this.getCurrentRoom().getAvailableRoomsByDirection()
+    if (roomsByDirection.length === 0) {
+      console.log('There is no room to go !')
+      return
+    }
+    console.log('You can go: ')
+    roomsByDirection.forEach(async ({ direction, room }) => {
+      console.log(`-  ${direction?.getName()} is ${room!.getName()}`)
+    })
   }
 }
 

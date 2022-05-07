@@ -7,6 +7,12 @@ const rooms = [
   {
     name: 'corridor',
   },
+  {
+    name: 'bathroom',
+  },
+  {
+    name: 'kitchen',
+  },
 ]
 
 async function room(prisma: PrismaClient) {
