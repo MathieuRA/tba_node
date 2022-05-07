@@ -1,14 +1,14 @@
-import Readline from "readline-sync";
-import { PrismaClient } from "@prisma/client";
+import Readline from 'readline-sync'
+import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient()
 
-const readline = (text: string) => Readline.question(text);
+const readline = (text: string) => Readline.question(text)
 
 async function main() {}
 
 main()
   .catch((e) => {
-    throw e;
+    throw e
   })
-  .finally(async () => await prisma.$disconnect());
+  .finally(async () => await prisma.$disconnect())

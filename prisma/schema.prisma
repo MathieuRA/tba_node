@@ -63,7 +63,7 @@ model RoomConnection {
 
 model Room {
   id       Int             @id @default(autoincrement()) 
-  name     String             
+  name     String          @unique   
   items    Item[]
   fromRoom RoomConnection? @relation("from_room")
   toRoom   RoomConnection? @relation("to_room")
