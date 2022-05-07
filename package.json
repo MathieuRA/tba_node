@@ -1,0 +1,25 @@
+{
+  "name": "tba_node",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^17.0.31",
+    "@types/readline-sync": "^1.4.4",
+    "nodemon": "^2.0.16",
+    "prisma": "^3.13.0",
+    "ts-node": "^10.7.0",
+    "tslint": "^5.12.1",
+    "typescript": "^3.9.10"
+  },
+  "dependencies": {
+    "@prisma/client": "^3.13.0",
+    "readline-sync": "^1.4.10"
+  }
+}

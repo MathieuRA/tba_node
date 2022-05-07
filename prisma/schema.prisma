@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Command {
+  id              Int       @id @default(autoincrement())
+  command         String
+  default_message String    
+  effect          Effect?
+
+  @@unique([command])
+}
+
+model Direction {
+  id               Int                @id @default(autoincrement())
+  command          String             
+  name             String            
+  roomConnection   RoomConnection?     
+
+  @@unique([command, name])
+}
+
+model Effect {
+  effectType                          String   
+  id                                  Int     @id @default(autoincrement()) 
+  itemId                              Int      
+  order                               Int      
+  commandId                           Int      
+  message                             String? 
+  command                             Command @relation(fields: [commandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  item                                Item    @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([commandId, itemId])
+}
+
+model Item {
+  id                                    Int       @id @default(autoincrement()) 
+  name                                  String   
+  roomId                                Int     
+  room                                  Room     @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  effects                               Effect[]
+  state                                 State?
+
+  @@index([roomId])
+}
+
+model RoomConnection {
+  id                                         Int        @id @default(autoincrement()) 
+  fromRoomId                                 Int        
+  toRoomId                                   Int        
+  directionId                                Int        
+  direction                                  Direction  @relation(fields: [directionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  fromRoom                                   Room      @relation("from_room",fields: [fromRoomId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  toRoom                                     Room      @relation("to_room", fields: [toRoomId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([directionId, fromRoomId,toRoomId])
+}
+
+model Room {
+  id       Int             @id @default(autoincrement()) 
+  name     String             
+  items    Item[]
+  fromRoom RoomConnection? @relation("from_room")
+  toRoom   RoomConnection? @relation("to_room")
+}
+
+model State {
+  stateType           String   
+  id                  Int      @id @default(autoincrement()) 
+  name                String   
+  itemId              Int     
+  booleanDefaultValue Boolean?
+  numberDefaultValue  Float?
+  stringDefaultValue  String?  
+  item                Item    @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([itemId])
+}
