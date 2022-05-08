@@ -19,7 +19,7 @@ async function effect(prisma: PrismaClient) {
   ])
 
   // COMMANDS
-  const [sleep, open] = await Promise.all([
+  const [sleep, open, eat, drink] = await Promise.all([
     prisma.command.findUnique({
       where: {
         command: 'sleep',
@@ -29,6 +29,18 @@ async function effect(prisma: PrismaClient) {
     prisma.command.findUnique({
       where: {
         command: 'open',
+      },
+      rejectOnNotFound: true,
+    }),
+    prisma.command.findUnique({
+      where: {
+        command: 'eat',
+      },
+      rejectOnNotFound: true,
+    }),
+    prisma.command.findUnique({
+      where: {
+        command: 'drink',
       },
       rejectOnNotFound: true,
     }),
@@ -67,6 +79,54 @@ async function effect(prisma: PrismaClient) {
         },
       },
     },
+    {
+      effectType: 'Remove',
+      order: 0,
+      message: '',
+      item: {
+        create: {
+          name: 'cookie',
+          roomId: bedroom.id,
+        },
+      },
+      command: {
+        connect: {
+          id: eat.id,
+        },
+      },
+    },
+    {
+      effectType: 'Remove',
+      order: 0,
+      message: '',
+      item: {
+        create: {
+          name: 'cheese',
+          roomId: bedroom.id,
+        },
+      },
+      command: {
+        connect: {
+          id: eat.id,
+        },
+      },
+    },
+    {
+      effectType: 'Rename',
+      order: 0,
+      message: 'empty-glass',
+      item: {
+        create: {
+          name: 'glass',
+          roomId: bedroom.id,
+        },
+      },
+      command: {
+        connect: {
+          id: drink.id,
+        },
+      },
+    },
   ]
 
   // Cannot use Promise.all() due to sqLite timeout query
@@ -75,6 +135,15 @@ async function effect(prisma: PrismaClient) {
   })
   await prisma.effect.create({
     data: effects[1],
+  })
+  await prisma.effect.create({
+    data: effects[2],
+  })
+  await prisma.effect.create({
+    data: effects[3],
+  })
+  await prisma.effect.create({
+    data: effects[4],
   })
 }
 

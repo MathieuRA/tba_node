@@ -6,10 +6,9 @@ export const INIT_ROOM_NAME = 'bedroom'
 
 class Game {
   #currentRoom: Room | null
-  #isRunning: boolean
+  static #isRunning = false
 
   constructor() {
-    this.#isRunning = false
     this.#currentRoom = null
   }
 
@@ -26,7 +25,7 @@ class Game {
     return this.#currentRoom
   }
 
-  isRunning() {
+  static isRunning() {
     return this.#isRunning
   }
 
@@ -52,10 +51,10 @@ class Game {
     }
 
     this.#currentRoom = initRoom
-    this.#isRunning = true
+    Game.#isRunning = true
   }
 
-  stop() {
+  static stop() {
     this.#isRunning = false
   }
 

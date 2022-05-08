@@ -1,4 +1,3 @@
-import { prisma } from '../src/app'
 import { Game } from '../src/class/game'
 import { INIT_ROOM_NAME } from '../src/class/game/game'
 import Direction from '../src/entity/Direction'
@@ -11,9 +10,9 @@ describe('Game initialization', () => {
 
   test('Init', async () => {
     initRoom = await Room.findBy({ name: INIT_ROOM_NAME })
-    expect(game.isRunning()).toBe(false)
+    expect(Game.isRunning()).toBe(false)
     await game.init()
-    expect(game.isRunning()).toBe(true)
+    expect(Game.isRunning()).toBe(true)
     expect(game.getCurrentRoom()).not.toBeNull()
     expect(game.getCurrentRoom()).toStrictEqual(initRoom)
     expect(game.getCurrentRoom().getItems().length).not.toBe(0)
@@ -34,8 +33,8 @@ describe('Game initialization', () => {
   })
 
   test('Stop', () => {
-    expect(game.isRunning()).toBe(true)
-    game.stop()
-    expect(game.isRunning()).toBe(false)
+    expect(Game.isRunning()).toBe(true)
+    Game.stop()
+    expect(Game.isRunning()).toBe(false)
   })
 })

@@ -4,7 +4,7 @@ import AbstractEntity from './AbstractEntity'
 import Direction from './Direction'
 import Item, { ItemWithRelation } from './Item'
 
-type RoomWithRelation = RoomPrisma & {
+export type RoomWithRelation = RoomPrisma & {
   fromRoom: RoomConnection[]
   items: ItemWithRelation[]
 }
@@ -24,7 +24,11 @@ class Room extends AbstractEntity {
     super(id)
     this.#name = name
     this.#connections = connections
-    this.#items = items.map((item) => Item.fromPrismaEntity(item))
+    this.#items = items.map((_item) => {
+      const item = Item.fromPrismaEntity(_item)
+      item.setRoom(this)
+      return item
+    })
   }
 
   // STATICS
@@ -36,12 +40,17 @@ class Room extends AbstractEntity {
           items: {
             include: {
               effects: true,
+              room: true,
             },
           },
         },
       })
       Room.#rooms = rooms.map((room) => Room.fromPrismaEntity(room))
     }
+    return Room.#rooms
+  }
+
+  static getAllRoom() {
     return Room.#rooms
   }
 
@@ -53,6 +62,7 @@ class Room extends AbstractEntity {
         items: {
           include: {
             effects: true,
+            room: true,
           },
         },
       },
@@ -102,6 +112,15 @@ class Room extends AbstractEntity {
   }
 
   // SETTERS
+  removeItem(item: Item) {
+    this.setItems(
+      this.getItems().filter((_item) => _item.getId() !== item.getId())
+    )
+  }
+
+  setItems(items: Array<Item>) {
+    this.#items = items
+  }
 }
 
 export default Room

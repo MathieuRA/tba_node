@@ -1,5 +1,7 @@
 import { primaryResponse } from '../app'
+import { Game } from '../class/game'
 import AbstractEntity from './AbstractEntity'
+import Item from './Item'
 
 interface Effect {
   trigger(): void
@@ -7,11 +9,14 @@ interface Effect {
 
 export enum EffectTypes {
   message = 'Message',
+  endgame = 'EndGame',
+  rename = 'Rename',
+  remove = 'Remove',
 }
 
 export abstract class AbstractEffect extends AbstractEntity implements Effect {
-  #order
-  #commandId
+  readonly #order
+  readonly #commandId
   constructor(id: number, order: number, commandId: number) {
     super(id)
     this.#order = order
@@ -51,5 +56,51 @@ export class MessageEffect extends AbstractEffect {
 
   trigger(): void {
     primaryResponse(this.#message)
+  }
+}
+
+export class EndGameEffect extends AbstractEffect {
+  readonly #game
+
+  constructor(id: number, order: number, commandId: number) {
+    super(id, order, commandId)
+    this.#game = Game
+  }
+
+  trigger(): void {
+    this.#game.stop()
+  }
+}
+
+export class RemoveEffect extends AbstractEffect {
+  readonly #item
+
+  constructor(id: number, order: number, commandId: number, item: Item) {
+    super(id, order, commandId)
+    this.#item = item
+  }
+
+  trigger(): void {
+    this.#item.getRoom().removeItem(this.#item)
+  }
+}
+
+export class RenameEffect extends AbstractEffect {
+  readonly #item
+  readonly #name
+  constructor(
+    id: number,
+    order: number,
+    commandId: number,
+    item: Item,
+    name: string | null
+  ) {
+    super(id, order, commandId)
+    this.#item = item
+    this.#name = name ?? `You must define a new name for the effect: ${id}`
+  }
+
+  trigger(): void {
+    this.#item.setName(this.#name)
   }
 }

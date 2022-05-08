@@ -5,7 +5,7 @@ const rooms = [
   {
     name: 'bedroom',
     items: {
-      create: [{ name: 'chair' }],
+      create: [{ name: 'chair' }, { name: 'alcool' }],
     },
   },
   {
