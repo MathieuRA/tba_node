@@ -2,20 +2,29 @@ import { Room as RoomPrisma, RoomConnection } from '@prisma/client'
 
 import AbstractEntity from './AbstractEntity'
 import Direction from './Direction'
+import Item, { ItemWithRelation } from './Item'
 
-type RoomWithConnection = RoomPrisma & {
+type RoomWithRelation = RoomPrisma & {
   fromRoom: RoomConnection[]
+  items: ItemWithRelation[]
 }
 class Room extends AbstractEntity {
   static #rooms: Array<Room>
 
   #name
   #connections
+  #items
 
-  constructor(id: number, name: string, connections: RoomConnection[]) {
+  constructor(
+    id: number,
+    name: string,
+    connections: RoomConnection[],
+    items: ItemWithRelation[]
+  ) {
     super(id)
     this.#name = name
     this.#connections = connections
+    this.#items = items.map((item) => Item.fromPrismaEntity(item))
   }
 
   // STATICS
@@ -24,6 +33,11 @@ class Room extends AbstractEntity {
       const rooms = await AbstractEntity.getDb().room.findMany({
         include: {
           fromRoom: true,
+          items: {
+            include: {
+              effects: true,
+            },
+          },
         },
       })
       Room.#rooms = rooms.map((room) => Room.fromPrismaEntity(room))
@@ -36,13 +50,20 @@ class Room extends AbstractEntity {
       where: predicate,
       include: {
         fromRoom: true,
+        items: {
+          include: {
+            effects: true,
+          },
+        },
       },
     })
-    return room !== null ? new Room(room.id, room.name, room.fromRoom) : null
+    return room !== null
+      ? new Room(room.id, room.name, room.fromRoom, room.items)
+      : null
   }
 
-  static fromPrismaEntity(room: RoomWithConnection): Room {
-    return new Room(room.id, room.name, room.fromRoom)
+  static fromPrismaEntity(room: RoomWithRelation): Room {
+    return new Room(room.id, room.name, room.fromRoom, room.items)
   }
 
   // PRIVATES
@@ -50,6 +71,10 @@ class Room extends AbstractEntity {
   // GETTERS
   getConnections() {
     return this.#connections
+  }
+
+  getItems() {
+    return this.#items
   }
 
   getName() {
@@ -80,15 +105,3 @@ class Room extends AbstractEntity {
 }
 
 export default Room
-
-// const availableRoomsByDirection = this.getConnections().map(
-//   async (connection) => ({
-//     room: (await Room.findAll()).find(
-//       (room) => room.getId() === connection.fromRoomId
-//     ),
-//     direction: (await Direction.findAll()).find(
-//       (direction) => direction.getId() === connection.directionId
-//     ),
-//   })
-// )
-// return availableRoomsByDirection

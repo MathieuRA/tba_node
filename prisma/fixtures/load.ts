@@ -1,16 +1,21 @@
 import { PrismaClient } from '@prisma/client'
+import command from './command'
 
 // FIXTURES
 import direction from './direction'
+import effect from './effect'
 import room from './room'
 import room_connection from './room_connection'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  await direction(prisma)
-  await room(prisma)
+  await prisma.command.deleteMany({})
+  await prisma.direction.deleteMany({})
+  await prisma.room.deleteMany({})
+  await Promise.all([command(prisma), direction(prisma), room(prisma)])
   await room_connection(prisma)
+  await effect(prisma)
 }
 
 main()

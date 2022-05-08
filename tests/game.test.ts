@@ -16,6 +16,7 @@ describe('Game initialization', () => {
     expect(game.isRunning()).toBe(true)
     expect(game.getCurrentRoom()).not.toBeNull()
     expect(game.getCurrentRoom()).toStrictEqual(initRoom)
+    expect(game.getCurrentRoom().getItems().length).not.toBe(0)
   })
 
   test('Change current room', async () => {
@@ -24,10 +25,12 @@ describe('Game initialization', () => {
     if (direction === null) {
       throw new Error('Run "npm run fixtures" before doing unit test')
     }
+    expect(game.getCurrentRoom().getItems().length).not.toBe(0)
     expect(game.getCurrentRoom()).toStrictEqual(initRoom)
     expect(game.getCurrentRoom()).not.toStrictEqual(nextRoom)
     await game.changeCurrentRoom(direction)
     expect(game.getCurrentRoom()).toStrictEqual(nextRoom)
+    expect(game.getCurrentRoom().getItems().length).toBe(0)
   })
 
   test('Stop', () => {

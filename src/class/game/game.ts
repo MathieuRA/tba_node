@@ -1,3 +1,4 @@
+import { primaryResponse, succesResponse } from '../../app'
 import Direction from '../../entity/Direction'
 import Room from '../../entity/Room'
 
@@ -68,8 +69,18 @@ class Game {
     }
     console.log('You can go: ')
     roomsByDirection.forEach(async ({ direction, room }) => {
-      console.log(`-  ${direction?.getName()} is ${room!.getName()}`)
+      primaryResponse(`-  ${direction?.getName()} is ${room!.getName()}`)
     })
+  }
+
+  printAvailableItems() {
+    const items = this.getCurrentRoom().getItems()
+    if (items.length === 0) {
+      console.log('There is no items here !')
+      return
+    }
+    console.log('Visible items:')
+    items.forEach((item) => primaryResponse(`- ${item.getName()}`))
   }
 }
 

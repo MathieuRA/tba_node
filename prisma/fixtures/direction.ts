@@ -20,7 +20,6 @@ const directions = [
 ]
 
 async function direction(prisma: PrismaClient) {
-  await prisma.direction.deleteMany({})
   await Promise.all(
     directions.map((direction) =>
       prisma.direction.create({
