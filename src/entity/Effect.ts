@@ -12,6 +12,7 @@ export enum EffectTypes {
   endgame = 'EndGame',
   rename = 'Rename',
   remove = 'Remove',
+  boolean = 'BooleanState',
 }
 
 export abstract class AbstractEffect extends AbstractEntity implements Effect {
@@ -102,5 +103,38 @@ export class RenameEffect extends AbstractEffect {
 
   trigger(): void {
     this.#item.setName(this.#name)
+  }
+}
+
+export class BooleanStateEffect extends AbstractEffect {
+  readonly #item
+  readonly #name
+
+  constructor(
+    id: number,
+    order: number,
+    commandId: number,
+    item: Item,
+    name: string
+  ) {
+    super(id, order, commandId)
+    this.#item = item
+    this.#name = name
+  }
+  trigger(): void {
+    console.log('triggered')
+    // console.log(this.#item.getStates())
+    const state = this.#item.getStates()?.find((state) => {
+      // console.log(state.getName())
+      return state.getName() === this.#name
+    })
+    // if (state === undefined) {
+    //   throw new Error(
+    //     `No state found for item: ${this.#item.getId()} with name: ${
+    //       this.#name
+    //     }`
+    //   )
+    // }
+    // state?.setValue(!state.getValue())
   }
 }

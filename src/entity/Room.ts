@@ -41,6 +41,7 @@ class Room extends AbstractEntity {
             include: {
               effects: true,
               room: true,
+              state: true,
             },
           },
         },
@@ -63,6 +64,7 @@ class Room extends AbstractEntity {
           include: {
             effects: true,
             room: true,
+            state: true,
           },
         },
       },

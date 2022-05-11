@@ -65,12 +65,19 @@ async function effect(prisma: PrismaClient) {
     },
     {
       effectType: 'Message',
-      order: 0,
+      order: 1,
       message: 'Hmm, the fridge is empty...',
       item: {
         create: {
           name: 'fridge',
           roomId: kitchen.id,
+          state: {
+            create: {
+              name: 'fridge_open',
+              stateType: 'Boolean',
+              booleanDefaultValue: false,
+            },
+          },
         },
       },
       command: {
@@ -144,6 +151,30 @@ async function effect(prisma: PrismaClient) {
   })
   await prisma.effect.create({
     data: effects[4],
+  })
+
+  const fridge = await prisma.item.findFirst({
+    where: {
+      name: 'fridge',
+    },
+  })
+
+  await prisma.effect.create({
+    data: {
+      effectType: 'BooleanState',
+      order: 0,
+      message: 'fridge_open',
+      item: {
+        connect: {
+          id: fridge?.id,
+        },
+      },
+      command: {
+        connect: {
+          id: open.id,
+        },
+      },
+    },
   })
 }
 

@@ -15,7 +15,7 @@ describe('Item manipulation from the room', () => {
       .getItems()
       .find((item) => item.getName() === 'cookie')
     if (cookie === undefined) {
-      throw new Error('You must run "npm run fixtures" for testing')
+      throw new Error('You must run "npm run fixtures" before testing')
     }
     game.getCurrentRoom().removeItem(cookie)
     const removedCookie = game
@@ -34,7 +34,7 @@ describe('Item manipulation from the room', () => {
       .find((item) => item.getName() === 'cheese')
 
     if (cheese === undefined) {
-      throw new Error('You must run "npm run fixtures" for testing')
+      throw new Error('You must run "npm run fixtures" before testing')
     }
 
     cheese.getEffects().forEach((effect) => {

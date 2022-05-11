@@ -3,9 +3,11 @@ import {
   Room as RoomPrisma,
   Effect as EffectPrisma,
   Item as ItemPrisma,
+  State as StatePrisma,
 } from '@prisma/client'
 import {
   AbstractEffect,
+  BooleanStateEffect,
   EffectTypes,
   EndGameEffect,
   MessageEffect,
@@ -13,17 +15,25 @@ import {
   RenameEffect,
 } from './Effect'
 import Room, { RoomWithRelation } from './Room'
+import State, { StateTypes } from './State'
 
 export type ItemWithRelation = ItemPrisma & {
   effects: EffectPrisma[]
+  state: StatePrisma[]
 }
 
 class Item extends AbstractEntity {
   #name
   #effects: AbstractEffect[]
   #room: Room | null
+  #states?: State<unknown>[]
 
-  constructor(id: number, name: string, effects: EffectPrisma[]) {
+  constructor(
+    id: number,
+    name: string,
+    effects: EffectPrisma[],
+    states?: StatePrisma[]
+  ) {
     super(id)
     this.#name = name
     this.#room = null
@@ -53,8 +63,28 @@ class Item extends AbstractEntity {
             this,
             effect.message
           )
+        case EffectTypes.boolean:
+          return new BooleanStateEffect(
+            effect.id,
+            effect.order,
+            effect.commandId,
+            this,
+            effect.message!
+          )
         default:
           throw new Error(`Invalid effect type: ${effect.effectType}`)
+      }
+    })
+    states?.forEach((state) => {
+      switch (state.stateType) {
+        case StateTypes.BOOLEAN:
+          new State(state.id, this, state.name, state.booleanDefaultValue!)
+          break
+        case StateTypes.STRING:
+          new State(state.id, this, state.name, state.stringDefaultValue!)
+          break
+        default:
+          throw new Error(`Unsuported state type: ${state.stateType}`)
       }
     })
   }
@@ -64,6 +94,7 @@ class Item extends AbstractEntity {
       include: {
         effects: true,
         room: true,
+        state: true,
       },
     })
     return items.map((item) => Item.fromPrismaEntity(item))
@@ -75,6 +106,7 @@ class Item extends AbstractEntity {
       include: {
         effects: true,
         room: true,
+        state: true,
       },
     })
     if (item === null) {
@@ -84,7 +116,7 @@ class Item extends AbstractEntity {
   }
 
   static fromPrismaEntity(item: ItemWithRelation): Item {
-    return new Item(item.id, item.name, item.effects)
+    return new Item(item.id, item.name, item.effects, item.state)
   }
 
   // PRIVATES
@@ -104,7 +136,18 @@ class Item extends AbstractEntity {
     return this.#room
   }
 
-  // // SETTERS
+  getStates() {
+    return this.#states
+  }
+
+  // SETTERS
+  addState(state: State<unknown>) {
+    this.#states?.push(state)
+  }
+  removeState(state: State<unknown>) {
+    // @TODO
+  }
+
   setName(name: string) {
     this.#name = name
   }

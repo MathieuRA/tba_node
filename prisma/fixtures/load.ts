@@ -10,6 +10,7 @@ import room_connection from './room_connection'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Using Promise.all for drop table throw connection timed out
   await prisma.command.deleteMany({})
   await prisma.direction.deleteMany({})
   await prisma.room.deleteMany({})
